@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeGenius AI - Premium Code Generator</title>
+    <style>
+        :root {
+            --primary-color: #7c3aed;
+            --primary-light: #9f7aea;
+            --secondary-color: #6d28d9;
+            --bg-color: #0f172a;
+            --secondary-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --code-bg: #0f172a;
+            --border-color: #334155;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --highlight-color: #f97316;
+            --glass-effect: rgba(15, 23, 42, 0.8);
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            --transition-all: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.1) 0%, rgba(15, 23, 42, 1) 90%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            padding: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--card-shadow);
+        }
+
+        .logo-icon i {
+            font-size: 20px;
+            color: white;
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-beta {
+            font-size: 12px;
+            font-weight: 600;
+            background: var(--highlight-color);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 12px;
+            margin-left: 8px;
+            vertical-align: super;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .control-btn {
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            color: var(--text-color);
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-all);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .control-btn:hover {
+            background: var(--border-color);
+            transform: translateY(-1px);
+        }
+
+        .control-btn i {
+            font-size: 16px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex: 1;
+            position: relative;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+
+        .messages-container {
+            flex: 1;
+            border-radius: 16px;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: var(--glass-effect);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        .messages-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .messages-container::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-light);
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 4px;
+            position: relative;
+        }
+
+        .user-message {
+            justify-content: flex-end;
+        }
+
+        .bot-message {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 85%;
+            padding: 16px 20px;
+            border-radius: 18px;
+            position: relative;
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            line-height: 1.6;
+            font-size: 15px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .user-message .message-content {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .bot-message .message-content {
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-bottom-left-radius: 4px;
+        }
+
+        .bot-message .message-content.thinking {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+        }
+
+        .thinking-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .thinking-dots span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--text-muted);
+            animation: thinking 1.4s infinite ease-in-out;
+        }
+
+        .thinking-dots span:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .thinking-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .thinking-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            text-align: right;
+        }
+
+        .code-block {
+            background-color: var(--code-bg);
+            border-radius: 12px;
+            margin-top: 16px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            background-color: rgba(15, 23, 42, 0.7);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-language {
+            color: var(--highlight-color);
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .code-content {
+            padding: 16px;
+            font-family: 'Fira Code', 'Consolas', 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            color: #e0e0e0;
+            line-height: 1.5;
+            font-size: 14px;
+            tab-size: 2;
+        }
+
+        .typing {
+            border-right: 2px solid var(--primary-color);
+            animation: blink-caret 0.75s step-end infinite;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .action-button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 16px;
+            transition: var(--transition-all);
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-button:hover {
+            color: var(--primary-color);
+            background: rgba(124, 58, 237, 0.1);
+        }
+
+        .input-container {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            background-color: var(--glass-effect);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            transition: var(--transition-all);
+        }
+
+        .input-container:focus-within {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.3);
+        }
+
+        .input-field {
+            width: 100%;
+            min-height: 60px;
+            max-height: 200px;
+            padding: 16px 70px 16px 20px;
+            background-color: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-color);
+            font-size: 15px;
+            resize: none;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+
+        .input-field::placeholder {
+            color: var(--text-muted);
+        }
+
+        .send-button {
+            position: absolute;
+            right: 16px;
+            bottom: 16px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 12px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-all);
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .send-button::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+            opacity: 0;
+            transition: var(--transition-all);
+        }
+
+        .send-button:hover::before {
+            opacity: 1;
+            transform: scale(1.5);
+        }
+
+        .send-button span {
+            z-index: 1;
+            color: white;
+            font-size: 20px;
+        }
+
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .send-button:active {
+            transform: translateY(0);
+        }
+
+        .copy-button, .run-button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: var(--transition-all);
+        }
+
+        .copy-button:hover, .run-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--primary-color);
+        }
+
+        .copy-button.success {
+            color: var(--success-color);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0;
+            transition: var(--transition-all);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--card-shadow);
+            transform: translateY(20px);
+        }
+
+        .toast.success {
+            background: var(--success-color);
+        }
+
+        .toast.error {
+            background: var(--error-color);
+        }
+
+        .toast.warning {
+            background: var(--warning-color);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast i {
+            font-size: 18px;
+        }
+
+        @keyframes typing {
+            from {
+                width: 0;
+            }
+        }
+
+        @keyframes blink-caret {
+            from, to {
+                border-color: transparent;
+            }
+            50% {
+                border-color: var(--primary-color);
+            }
+        }
+
+        @keyframes thinking {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(124, 58, 237, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(124, 58, 237, 0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Modal for running code */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            overflow: auto;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: var(--secondary-bg);
+            margin: 5% auto;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            width: 80%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow: auto;
+            position: relative;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            transform: translateY(-20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 24px;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-all);
+        }
+
+        .close-modal:hover {
+            color: var(--error-color);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .code-preview {
+            background-color: var(--code-bg);
+            padding: 16px;
+            border-radius: 12px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            font-family: 'Fira Code', 'Consolas', 'Courier New', Courier, monospace;
+            color: #e0e0e0;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .code-output {
+            background-color: var(--bg-color);
+            padding: 16px;
+            border-radius: 12px;
+            min-height: 150px;
+            border: 1px solid var(--border-color);
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+
+        .run-controls {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .modal-button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition-all);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .run-code-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .run-code-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .reset-btn {
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .reset-btn:hover {
+            background-color: var(--border-color);
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Code Syntax Highlighting Colors */
+        .keyword { color: #c792ea; }
+        .string { color: #ffab70; }
+        .comment { color: #7f848e; font-style: italic; }
+        .number { color: #f78c6c; }
+        .function { color: #82aaff; }
+        .operator { color: #89ddff; }
+        .variable { color: #9ccfff; }
+        .property { color: #80cbc4; }
+        .bracket { color: #ffd700; }
+        .tag { color: #f07178; }
+        .attribute { color: #ffcb6b; }
+        .value { color: #c3e88d; }
+
+        /* Responsive Design */
+        @media screen and (max-width: 1024px) {
+            .container {
+                padding: 16px;
+            }
+
+            .modal-content {
+                width: 90%;
+                margin: 10% auto;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+
+            .controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .chat-container {
+                height: calc(100vh - 220px);
+            }
+
+            .message-content {
+                max-width: 90%;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 16px auto;
+                padding: 16px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .control-btn span {
+                display: none;
+            }
+
+            .logo-text {
+                font-size: 18px;
+            }
+
+            .message-content {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+
+            .input-field {
+                padding: 12px 60px 12px 16px;
+                font-size: 14px;
+            }
+
+            .send-button {
+                width: 40px;
+                height: 40px;
+                right: 12px;
+                bottom: 12px;
+            }
+        }
+
+        /* Specific elements for Sinhala mode */
+        .sinhala-font {
+            font-family: 'Noto Sans Sinhala', 'Iskoola Pota', sans-serif;
+        }
+
+        /* Floating action button */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            z-index: 100;
+            transition: var(--transition-all);
+        }
+
+        .fab:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background: var(--secondary-bg);
+            color: var(--text-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: var(--transition-all);
+            z-index: 1000;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .tooltip:after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--secondary-bg);
+            transform: rotate(45deg);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Tooltip positions */
+        .tooltip.top {
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+        }
+
+        .tooltip.top:after {
+            top: 100%;
+            left: 50%;
+            margin-left: -4px;
+            margin-top: -4px;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-color), var(--highlight-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            background: var(--primary-color);
+            color: white;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        /* Pulse animation for new messages */
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(124, 58, 237, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(124, 58, 237, 0);
+            }
+        }
+
+        .pulse-glow {
+            animation: pulse-glow 2s infinite;
+        }
+
+        /* Wave animation */
+        .wave {
+            display: inline-block;
+            animation: wave 1.5s infinite;
+            transform-origin: 70% 70%;
+        }
+
+        @keyframes wave {
+            0% { transform: rotate(0deg); }
+            10% { transform: rotate(14deg); }
+            20% { transform: rotate(-8deg); }
+            30% { transform: rotate(14deg); }
+            40% { transform: rotate(-4deg); }
+            50% { transform: rotate(10deg); }
+            60% { transform: rotate(0deg); }
+            100% { transform: rotate(0deg); }
+        }
+    </style>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="#" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <span class="logo-text" id="logo-text">CodeGenius AI</span>
+                <span class="logo-beta">PRO</span>
+            </a>
+            <div class="controls">
+                <button class="control-btn" id="language-toggle">
+                    <i class="fas fa-language"></i>
+                    <span id="language-text">English</span>
+                </button>
+                <button class="control-btn" id="theme-toggle">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                    <span id="theme-text">Dark Mode</span>
+                </button>
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="chat-container">
+                <div class="messages-container" id="messages-container">
+                    <!-- Bot welcome message -->
+                    <div class="message bot-message">
+                        <div class="message-content">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                <div style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-robot" style="color: white; font-size: 16px;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600;">CodeGenius AI</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);">Premium Code Assistant</div>
+                                </div>
+                            </div>
+                            <p id="welcome-message">Welcome to CodeGenius AI! I can help you generate code in various programming languages. Just describe what you need, and I'll create it for you.</p>
+                            <div style="margin-top: 16px; background: rgba(124, 58, 237, 0.1); padding: 12px; border-radius: 8px; border-left: 3px solid var(--primary-color);">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                    <i class="fas fa-lightbulb" style="color: var(--highlight-color);"></i>
+                                    <div style="font-weight: 600;">Pro Tip</div>
+                                </div>
+                                <div style="font-size: 14px; color: var(--text-muted);">Try being specific with your requests like: "Create a React component for a login form with validation" or "Python function to calculate Fibonacci sequence"</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <textarea class="input-field" id="user-input" placeholder="Describe the code you need..." rows="1"></textarea>
+                    <button class="send-button" id="send-button">
+                        <span><i class="fas fa-paper-plane"></i></span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Modal for running code -->
+    <div class="modal" id="code-modal">
+        <div class="modal-content">
+            <button class="close-modal" id="close-modal"><i class="fas fa-times"></i></button>
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">Code Preview</h3>
+            </div>
+            <div class="code-preview" id="code-preview"></div>
+            <h4>Output:</h4>
+            <div class="code-output" id="code-output"></div>
+            <div class="run-controls">
+                <button class="modal-button reset-btn" id="reset-output">
+                    <i class="fas fa-undo"></i>
+                    <span>Reset Output</span>
+                </button>
+                <button class="modal-button run-code-btn" id="run-code">
+                    <i class="fas fa-play"></i>
+                    <span>Run Code</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating action button -->
+    <div class="fab" id="scroll-to-bottom" style="display: none;">
+        <i class="fas fa-arrow-down"></i>
+    </div>
+
+    <script>
+        // Enhanced CodeGenius AI with Premium UI/UX
+        document.addEventListener('DOMContentLoaded', function() {
+            // Global variables
+            const API_KEY = 'AIzaSyBjv-eGcDOS1D2-Ly556tbQx_oFAiBuz2k'; // Replace with your actual Gemini API key
+            let currentLanguage = 'english'; // Default language
+            let isDarkMode = true; // Default dark mode
+            let isProcessing = false; // Track if AI is processing
+
+            // DOM Elements
+            const messagesContainer = document.getElementById('messages-container');
+            const userInput = document.getElementById('user-input');
+            const sendButton = document.getElementById('send-button');
+            const languageToggle = document.getElementById('language-toggle');
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            const toast = document.getElementById('toast');
+            const codeModal = document.getElementById('code-modal');
+            const closeModal = document.getElementById('close-modal');
+            const codePreview = document.getElementById('code-preview');
+            const codeOutput = document.getElementById('code-output');
+            const runCodeBtn = document.getElementById('run-code');
+            const resetOutputBtn = document.getElementById('reset-output');
+            const logoText = document.getElementById('logo-text');
+            const languageText = document.getElementById('language-text');
+            const themeText = document.getElementById('theme-text');
+            const welcomeMessage = document.getElementById('welcome-message');
+            const scrollToBottomBtn = document.getElementById('scroll-to-bottom');
+
+            // Language translations
+            const translations = {
+                english: {
+                    welcome: "Welcome to <span class='gradient-text'>CodeGenius AI Pro</span>! I'm your advanced AI coding assistant. I can generate, explain, and optimize code in any language. How can I help you today?",
+                    inputPlaceholder: "Describe the code you need...",
+                    languageToggle: "English",
+                    themeToggleDark: "Dark Mode",
+                    themeToggleLight: "Light Mode",
+                    codePreview: "Code Preview",
+                    output: "Output:",
+                    resetOutput: "Reset Output",
+                    runCode: "Run Code",
+                    copySuccess: "Code copied to clipboard!",
+                    copyError: "Failed to copy code.",
+                    thinking: "Analyzing request...",
+                    logoText: "CodeGenius AI",
+                    proTip: "Pro Tip",
+                    proTipContent: "Try being specific with your requests like: 'Create a React component for a login form with validation' or 'Python function to calculate Fibonacci sequence'"
+                },
+                sinhala: {
+                    welcome: "<span class='gradient-text'>CodeGenius AI Pro</span> වෙත සාදරයෙන් පිළිගනිමු! මම ඔබේ උසස් කේත උපදේශකයාය. මට ඕනෑම භාෂාවක කේත ජනනය කිරීමට, පැහැදිලි කිරීමට සහ ප්‍රශස්ත කිරීමට හැකිය. ඔබට උදව් කිරීමට මට හැක්කේ කෙසේද?",
+                    inputPlaceholder: "ඔබට අවශ්‍ය කේතය විස්තර කරන්න...",
+                    languageToggle: "සිංහල",
+                    themeToggleDark: "අඳුරු මාදිලිය",
+                    themeToggleLight: "ආලෝක මාදිලිය",
+                    codePreview: "කේත පෙරදසුන",
+                    output: "ප්‍රතිදානය:",
+                    resetOutput: "ප්‍රතිදානය යළි පිහිටුවන්න",
+                    runCode: "කේතය ක්‍රියාත්මක කරන්න",
+                    copySuccess: "කේතය ක්ලිප්බෝඩ් එකට පිටපත් කළා!",
+                    copyError: "කේතය පිටපත් කිරීමට අසමත් විය.",
+                    thinking: "ඉල්ලීම විශ්ලේෂණය කරමින්...",
+                    logoText: "CodeGenius AI",
+                    proTip: "වෘත්තීය උපදෙස්",
+                    proTipContent: "'ලොගින් පෝරමයක් සඳහා React සංරචකයක් නිර්මාණය කරන්න' හෝ 'Fibonacci අනුක්‍රමය ගණනය කිරීම සඳහා Python ශ්‍රිතය' වැනි විශේෂිත ඉල්ලීම් සමඟ උත්සාහ කරන්න"
+                }
+            };
+
+            // Initialize the UI
+            function initUI() {
+                updateLanguageUI();
+                
+                // Set textarea auto-resize
+                userInput.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = (this.scrollHeight) + 'px';
+                    if (this.scrollHeight > 200) {
+                        this.style.overflowY = 'auto';
+                    } else {
+                        this.style.overflowY = 'hidden';
+                    }
+                });
+
+                // Add event listeners
+                sendButton.addEventListener('click', handleSendMessage);
+                userInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendMessage();
+                    }
+                });
+                
+                languageToggle.addEventListener('click', toggleLanguage);
+                themeToggle.addEventListener('click', toggleTheme);
+                closeModal.addEventListener('click', () => closeModalWindow());
+                runCodeBtn.addEventListener('click', runCodeInModal);
+                resetOutputBtn.addEventListener('click', () => codeOutput.innerHTML = '');
+                scrollToBottomBtn.addEventListener('click', scrollToBottom);
+                
+                // Close modal when clicking outside
+                window.addEventListener('click', (e) => {
+                    if (e.target === codeModal) {
+                        closeModalWindow();
+                    }
+                });
+
+                // Show/hide scroll to bottom button
+                messagesContainer.addEventListener('scroll', toggleScrollToBottomButton);
+                window.addEventListener('resize', adjustForScreenSize);
+
+                // Initialize tooltips
+                initTooltips();
+
+                // Check for new messages to scroll
+                observeNewMessages();
+            }
+
+            // Initialize tooltips
+            function initTooltips() {
+                const tooltipElements = document.querySelectorAll('[data-tooltip]');
+                
+                tooltipElements.forEach(el => {
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tooltip top';
+                    tooltip.textContent = el.dataset.tooltip;
+                    document.body.appendChild(tooltip);
+                    
+                    el.addEventListener('mouseenter', () => {
+                        const rect = el.getBoundingClientRect();
+                        tooltip.style.left = `${rect.left + rect.width / 2}px`;
+                        tooltip.style.top = `${rect.top - 8}px`;
+                        tooltip.classList.add('show');
+                    });
+                    
+                    el.addEventListener('mouseleave', () => {
+                        tooltip.classList.remove('show');
+                    });
+                });
+            }
+
+            // Observe new messages for auto-scroll
+            function observeNewMessages() {
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.addedNodes.length) {
+                            const isAtBottom = isScrolledToBottom();
+                            if (isAtBottom) {
+                                scrollToBottom();
+                            } else {
+                                scrollToBottomBtn.style.display = 'flex';
+                            }
+                        }
+                    });
+                });
+
+                observer.observe(messagesContainer, { childList: true });
+            }
+
+            // Check if scrolled to bottom
+            function isScrolledToBottom() {
+                return messagesContainer.scrollTop + messagesContainer.clientHeight >= messagesContainer.scrollHeight - 50;
+            }
+
+            // Scroll to bottom of chat
+            function scrollToBottom() {
+                messagesContainer.scrollTo({
+                    top: messagesContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+                scrollToBottomBtn.style.display = 'none';
+            }
+
+            // Toggle scroll to bottom button
+            function toggleScrollToBottomButton() {
+                if (isScrolledToBottom()) {
+                    scrollToBottomBtn.style.display = 'none';
+                } else {
+                    scrollToBottomBtn.style.display = 'flex';
+                }
+            }
+
+            // Close modal window with animation
+            function closeModalWindow() {
+                codeModal.classList.remove('show');
+                setTimeout(() => {
+                    codeModal.style.display = 'none';
+                }, 300);
+            }
+
+            // Adjust layout based on screen size
+            function adjustForScreenSize() {
+                if (window.innerWidth <= 768) {
+                    // Mobile adjustments
+                    document.querySelector('.container').style.padding = '16px';
+                } else {
+                    // Desktop adjustments
+                    document.querySelector('.container').style.padding = '20px';
+                }
+            }
+
+            // Toggle between English and Sinhala
+            function toggleLanguage() {
+                currentLanguage = currentLanguage === 'english' ? 'sinhala' : 'english';
+                updateLanguageUI();
+                
+                // Show toast
+                showToast(currentLanguage === 'english' ? 'Switched to English' : 'සිංහල වෙත මාරු විය', 'success');
+            }
+
+            // Update UI elements based on language
+            function updateLanguageUI() {
+                const lang = translations[currentLanguage];
+                
+                // Update text content
+                welcomeMessage.innerHTML = lang.welcome;
+                userInput.placeholder = lang.inputPlaceholder;
+                languageText.textContent = lang.languageToggle;
+                themeText.textContent = isDarkMode ? lang.themeToggleDark : lang.themeToggleLight;
+                document.getElementById('modal-title').textContent = lang.codePreview;
+                document.querySelector('.code-output').previousElementSibling.textContent = lang.output;
+                resetOutputBtn.innerHTML = `<i class="fas fa-undo"></i><span>${lang.resetOutput}</span>`;
+                runCodeBtn.innerHTML = `<i class="fas fa-play"></i><span>${lang.runCode}</span>`;
+                logoText.textContent = lang.logoText;
+                
+                // Update pro tip section
+                const proTipSection = document.querySelector('.message-content .gradient-text');
+                if (proTipSection) {
+                    proTipSection.innerHTML = lang.proTip;
+                    document.querySelector('.message-content [style="font-weight: 600;"]').textContent = lang.proTip;
+                    document.querySelector('.message-content [style="font-size: 14px; color: var(--text-muted);"]').textContent = lang.proTipContent;
+                }
+                
+                // Add or remove sinhala font class
+                if (currentLanguage === 'sinhala') {
+                    document.body.classList.add('sinhala-font');
+                } else {
+                    document.body.classList.remove('sinhala-font');
+                }
+            }
+
+            // Toggle between light and dark mode
+            function toggleTheme() {
+                isDarkMode = !isDarkMode;
+                
+                if (isDarkMode) {
+                    // Dark mode colors
+                    document.documentElement.style.setProperty('--bg-color', '#0f172a');
+                    document.documentElement.style.setProperty('--secondary-bg', '#1e293b');
+                    document.documentElement.style.setProperty('--text-color', '#f8fafc');
+                    document.documentElement.style.setProperty('--text-muted', '#94a3b8');
+                    document.documentElement.style.setProperty('--code-bg', '#0f172a');
+                    document.documentElement.style.setProperty('--border-color', '#334155');
+                    themeIcon.className = 'fas fa-moon';
+                    themeText.textContent = translations[currentLanguage].themeToggleDark;
+                } else {
+                    // Light mode colors
+                    document.documentElement.style.setProperty('--bg-color', '#f8fafc');
+                    document.documentElement.style.setProperty('--secondary-bg', '#e2e8f0');
+                    document.documentElement.style.setProperty('--text-color', '#0f172a');
+                    document.documentElement.style.setProperty('--text-muted', '#64748b');
+                    document.documentElement.style.setProperty('--code-bg', '#f1f5f9');
+                    document.documentElement.style.setProperty('--border-color', '#cbd5e1');
+                    themeIcon.className = 'fas fa-sun';
+                    themeText.textContent = translations[currentLanguage].themeToggleLight;
+                }
+            }
+
+            // Handle sending messages
+            async function handleSendMessage() {
+                const message = userInput.value.trim();
+                if (message === '' || isProcessing) return;
+                
+                // Add user message to chat
+                addMessageToChat(message, 'user');
+                
+                // Clear input
+                userInput.value = '';
+                userInput.style.height = 'auto';
+                
+                // Show thinking message
+                const thinkingId = showThinkingMessage();
+                
+                // Set processing state
+                isProcessing = true;
+                sendButton.disabled = true;
+                sendButton.style.opacity = '0.7';
+                
+                try {
+                    // Call API
+                    const response = await callGeminiAPI(message);
+                    
+                    // Remove thinking message
+                    removeThinkingMessage(thinkingId);
+                    
+                    // Process and display response
+                    processAndDisplayResponse(response);
+                } catch (error) {
+                    console.error('Error:', error);
+                    
+                    // Remove thinking message
+                    removeThinkingMessage(thinkingId);
+                    
+                    // Show error message
+                    addMessageToChat('Sorry, I encountered an error. Please try again.', 'bot');
+                    
+                    // Show error toast
+                    showToast('Connection error. Please try again.', 'error');
+                } finally {
+                    // Reset processing state
+                    isProcessing = false;
+                    sendButton.disabled = false;
+                    sendButton.style.opacity = '1';
+                }
+            }
+
+            // Add message to chat container
+            function addMessageToChat(message, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}-message`;
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
+                
+                // Add timestamp
+                const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                // For user messages
+                if (sender === 'user') {
+                    messageContent.innerHTML = `
+                        <div style="margin-bottom: 8px; font-weight: 500;">You</div>
+                        <div>${escapeHtml(message)}</div>
+                        <div class="message-time">${timestamp}</div>
+                    `;
+                } 
+                // For bot messages
+                else if (sender === 'bot') {
+                    // For regular text messages
+                    if (typeof message === 'string' && !message.includes('```')) {
+                        messageContent.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                <div style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-robot" style="color: white; font-size: 16px;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600;">CodeGenius AI</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);">Premium Code Assistant</div>
+                                </div>
+                            </div>
+                            <div>${formatMessage(message)}</div>
+                            <div class="message-time">${timestamp}</div>
+                        `;
+                    } 
+                    // For messages containing code blocks
+                    else if (typeof message === 'string') {
+                        messageContent.innerHTML = `
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                <div style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-robot" style="color: white; font-size: 16px;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600;">CodeGenius AI</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);">Premium Code Assistant</div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Process message with code blocks
+                        processMessageWithCode(messageContent, message);
+                        
+                        // Add timestamp
+                        const timeDiv = document.createElement('div');
+                        timeDiv.className = 'message-time';
+                        timeDiv.textContent = timestamp;
+                        messageContent.appendChild(timeDiv);
+                    }
+                }
+                
+                messageDiv.appendChild(messageContent);
+                messagesContainer.appendChild(messageDiv);
+                
+                // Scroll to bottom if near bottom
+                if (isScrolledToBottom()) {
+                    scrollToBottom();
+                }
+            }
+
+            // Format message with line breaks and lists
+            function formatMessage(message) {
+                // Replace newlines with <br>
+                let formatted = escapeHtml(message).replace(/\n/g, '<br>');
+                
+                // Simple markdown-style lists
+                formatted = formatted.replace(/^\s*-\s(.+)$/gm, '<li>$1</li>');
+                formatted = formatted.replace(/^\s*\*\s(.+)$/gm, '<li>$1</li>');
+                formatted = formatted.replace(/^\s*\d+\.\s(.+)$/gm, '<li>$1</li>');
+                
+                // Wrap lists in ul
+                if (formatted.includes('<li>')) {
+                    formatted = formatted.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
+                }
+                
+                return formatted;
+            }
+
+            // Escape HTML to prevent XSS
+            function escapeHtml(unsafe) {
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            // Show thinking animation
+            function showThinkingMessage() {
+                const thinkingId = 'thinking-' + Date.now();
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message bot-message';
+                messageDiv.id = thinkingId;
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content thinking';
+                
+                // Add avatar and info
+                messageContent.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-robot" style="color: white; font-size: 16px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">CodeGenius AI</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Premium Code Assistant</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 12px;">
+                        <div class="thinking-content">
+                            <i class="fas fa-cog fa-spin" style="color: var(--primary-color);"></i>
+                            <span>${translations[currentLanguage].thinking}</span>
+                            <div class="thinking-dots" style="margin-left: 8px;">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                messageDiv.appendChild(messageContent);
+                messagesContainer.appendChild(messageDiv);
+                
+                // Scroll to bottom
+                scrollToBottom();
+                
+                return thinkingId;
+            }
+
+            // Remove thinking message
+            function removeThinkingMessage(id) {
+                const thinkingMessage = document.getElementById(id);
+                if (thinkingMessage) {
+                    thinkingMessage.remove();
+                }
+            }
+
+            // Process message with code blocks
+            function processMessageWithCode(container, message) {
+                const codeRegex = /```([\w-]*)\n([\s\S]*?)```/g;
+                let lastIndex = 0;
+                let match;
+                
+                while ((match = codeRegex.exec(message)) !== null) {
+                    // Add text before code block
+                    const textBefore = message.substring(lastIndex, match.index);
+                    if (textBefore) {
+                        const textNode = document.createElement('div');
+                        textNode.innerHTML = formatMessage(textBefore);
+                        container.appendChild(textNode);
+                    }
+                    
+                    // Get language and code content
+                    const language = match[1] || 'plaintext';
+                    const code = match[2];
+                    
+                    // Create code block
+                    const codeBlock = createCodeBlock(code, language);
+                    container.appendChild(codeBlock);
+                    
+                    lastIndex = match.index + match[0].length;
+                }
+                
+                // Add any remaining text
+                const textAfter = message.substring(lastIndex);
+                if (textAfter) {
+                    const textNode = document.createElement('div');
+                    textNode.innerHTML = formatMessage(textAfter);
+                    container.appendChild(textNode);
+                }
+            }
+
+            // Create code block with syntax highlighting
+            function createCodeBlock(code, language) {
+                const codeBlockContainer = document.createElement('div');
+                codeBlockContainer.className = 'code-block';
+                
+                // Create header with language and action buttons
+                const header = document.createElement('div');
+                header.className = 'code-header';
+                
+                const langSpan = document.createElement('span');
+                langSpan.className = 'code-language';
+                langSpan.textContent = language || 'code';
+                header.appendChild(langSpan);
+                
+                const actions = document.createElement('div');
+                actions.className = 'code-actions';
+                
+                // Copy button
+                const copyButton = document.createElement('button');
+                copyButton.className = 'copy-button';
+                copyButton.innerHTML = '<i class="far fa-copy"></i>';
+                copyButton.title = 'Copy code';
+                copyButton.addEventListener('click', () => {
+                    copyCodeToClipboard(code);
+                    copyButton.innerHTML = '<i class="fas fa-check"></i>';
+                    copyButton.classList.add('success');
+                    setTimeout(() => {
+                        copyButton.innerHTML = '<i class="far fa-copy"></i>';
+                        copyButton.classList.remove('success');
+                    }, 2000);
+                });
+                
+                // Run button (only for supported languages)
+                if (['javascript', 'js', 'html', 'css'].includes(language.toLowerCase())) {
+                    const runButton = document.createElement('button');
+                    runButton.className = 'run-button';
+                    runButton.innerHTML = '<i class="fas fa-play"></i>';
+                    runButton.title = 'Run code';
+                    runButton.addEventListener('click', () => openCodeInModal(code, language));
+                    actions.appendChild(runButton);
+                }
+                
+                actions.appendChild(copyButton);
+                header.appendChild(actions);
+                
+                codeBlockContainer.appendChild(header);
+                
+                // Create code content with typing effect
+                const codeContent = document.createElement('div');
+                codeContent.className = 'code-content typing';
+                
+                // Apply syntax highlighting
+                codeContent.innerHTML = highlightSyntax(code, language);
+                
+                // Add typing animation
+                animateTyping(codeContent, 5);
+                
+                codeBlockContainer.appendChild(codeContent);
+                
+                return codeBlockContainer;
+            }
+
+            // Apply syntax highlighting
+            function highlightSyntax(code, language) {
+                // Simple syntax highlighting for common languages
+                if (['javascript', 'js'].includes(language.toLowerCase())) {
+                    // Replace keywords
+                    code = code.replace(/\b(function|return|var|let|const|if|else|for|while|class|import|export|from|try|catch|new|async|await|this|true|false|null|undefined)\b/g, '<span class="keyword">$1</span>');
+                    
+                    // Replace strings
+                    code = code.replace(/(["'`])(?:(?=(\\?))\2.)*?\1/g, '<span class="string">$&</span>');
+                    
+                    // Replace comments (single line)
+                    code = code.replace(/\/\/.*$/gm, '<span class="comment">$&</span>');
+                    
+                    // Replace comments (multi-line)
+                    code = code.replace(/\/\*[\s\S]*?\*\//g, '<span class="comment">$&</span>');
+                    
+                    // Replace numbers
+                    code = code.replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="number">$1</span>');
+                    
+                    // Replace function calls
+                    code = code.replace(/\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g, '<span class="function">$1</span>(');
+                    
+                    // Replace operators
+                    code = code.replace(/([=+\-*/%<>&|!?:]+)/g, '<span class="operator">$1</span>');
+                    
+                    // Replace variables/properties after dot
+                    code = code.replace(/\.([a-zA-Z_$][a-zA-Z0-9_$]*)/g, '.<span class="property">$1</span>');
+                    
+                    // Replace brackets
+                    code = code.replace(/([{}[\]()])/g, '<span class="bracket">$1</span>');
+                }
+                else if (language.toLowerCase() === 'html') {
+                    // HTML specific highlighting
+                    code = code.replace(/&lt;\/?([a-zA-Z][a-zA-Z0-9-]*)/g, '&lt;<span class="tag">$1</span>');
+                    code = code.replace(/([a-zA-Z-]+)=/g, '<span class="attribute">$1</span>=');
+                    code = code.replace(/&lt;!--[\s\S]*?--&gt;/g, '<span class="comment">$&</span>');
+                }
+                else if (language.toLowerCase() === 'css') {
+                    // CSS specific highlighting
+                    code = code.replace(/([a-zA-Z-]+)\s*:/g, '<span class="property">$1</span>:');
+                    code = code.replace(/:\s*([^;]+);/g, ': <span class="value">$1</span>;');
+                    code = code.replace(/\/\*[\s\S]*?\*\//g, '<span class="comment">$&</span>');
+                }
+                
+                return code;
+            }
+
+            // Animate typing effect
+            function animateTyping(element, speed) {
+                const text = element.innerHTML;
+                element.innerHTML = '';
+                
+                let i = 0;
+                const timer = setInterval(() => {
+                    if (i < text.length) {
+                        element.innerHTML += text.charAt(i);
+                        i++;
+                    } else {
+                        clearInterval(timer);
+                        element.classList.remove('typing');
+                        
+                        // Scroll to bottom after typing completes
+                        if (isScrolledToBottom()) {
+                            scrollToBottom();
+                        }
+                    }
+                }, speed);
+            }
+
+            // Copy code to clipboard
+            function copyCodeToClipboard(code) {
+                navigator.clipboard.writeText(code)
+                    .then(() => {
+                        showToast(translations[currentLanguage].copySuccess, 'success');
+                    })
+                    .catch(() => {
+                        showToast(translations[currentLanguage].copyError, 'error');
+                    });
+            }
+
+            // Open code in modal
+            function openCodeInModal(code, language) {
+                codePreview.textContent = code;
+                codeOutput.innerHTML = '';
+                
+                // Update modal title with language
+                document.getElementById('modal-title').textContent = `${translations[currentLanguage].codePreview} (${language.toUpperCase()})`;
+                
+                // Store the code and language for running
+                codePreview.dataset.code = code;
+                codePreview.dataset.language = language || 'javascript';
+                
+                // Show modal with animation
+                codeModal.style.display = 'block';
+                setTimeout(() => {
+                    codeModal.classList.add('show');
+                }, 10);
+            }
+
+            // Run code in modal
+            function runCodeInModal() {
+                const code = codePreview.dataset.code;
+                const language = codePreview.dataset.language;
+                
+                // Clear previous output
+                codeOutput.innerHTML = '';
+                
+                // Show loading indicator
+                const loadingSpinner = document.createElement('div');
+                loadingSpinner.className = 'loading-spinner';
+                codeOutput.appendChild(loadingSpinner);
+                
+                // Execute after a short delay to show loading
+                setTimeout(() => {
+                    try {
+                        // Remove loading spinner
+                        loadingSpinner.remove();
+                        
+                        // Execute based on language
+                        if (language === 'javascript' || language === 'js') {
+                            // Create a safe sandbox for running JavaScript
+                            const sandbox = {
+                                console: {
+                                    log: function(...args) {
+                                        const output = document.createElement('div');
+                                        output.textContent = args.join(' ');
+                                        codeOutput.appendChild(output);
+                                    },
+                                    error: function(...args) {
+                                        const output = document.createElement('div');
+                                        output.style.color = 'var(--error-color)';
+                                        output.textContent = args.join(' ');
+                                        codeOutput.appendChild(output);
+                                    },
+                                    warn: function(...args) {
+                                        const output = document.createElement('div');
+                                        output.style.color = 'var(--warning-color)';
+                                        output.textContent = args.join(' ');
+                                        codeOutput.appendChild(output);
+                                    }
+                                },
+                                alert: function(msg) {
+                                    const output = document.createElement('div');
+                                    output.textContent = `Alert: ${msg}`;
+                                    codeOutput.appendChild(output);
+                                },
+                                document: undefined,
+                                window: undefined,
+                                fetch: undefined,
+                                XMLHttpRequest: undefined,
+                                navigator: undefined,
+                                location: undefined
+                            };
+                            
+                            // Create a function from code
+                            const scriptFn = new Function(...Object.keys(sandbox), code);
+                            
+                            // Execute with sandbox
+                            scriptFn(...Object.values(sandbox));
+                        } else if (language === 'html') {
+                            // For HTML, create an iframe to render (with sandbox)
+                            const iframe = document.createElement('iframe');
+                            iframe.sandbox = 'allow-scripts';
+                            iframe.style.width = '100%';
+                            iframe.style.height = '300px';
+                            iframe.style.border = 'none';
+                            iframe.style.borderRadius = '8px';
+                            
+                            codeOutput.appendChild(iframe);
+                            
+                            // Wait for iframe to load
+                            iframe.onload = function() {
+                                // Apply dark mode if needed
+                                if (isDarkMode) {
+                                    const style = document.createElement('style');
+                                    style.textContent = 'body { background-color: #0f172a; color: #f8fafc; }';
+                                    iframe.contentDocument.head.appendChild(style);
+                                }
+                            };
+                            
+                            iframe.srcdoc = code;
+                        } else if (language === 'css') {
+                            // For CSS, create a style element and apply to a div
+                            const style = document.createElement('style');
+                            style.textContent = code;
+                            
+                            const preview = document.createElement('div');
+                            preview.style.padding = '16px';
+                            preview.innerHTML = '<p>CSS Preview (this is a sample element)</p>';
+                            
+                            codeOutput.appendChild(style);
+                            codeOutput.appendChild(preview);
+                        } else {
+                            // For other languages, show placeholder message
+                            codeOutput.innerHTML = `<div style="color: var(--text-muted);">Running ${language} code is not supported in this demo. Here's what would be executed:</div>
+                            <div style="margin-top: 12px; background: var(--code-bg); padding: 12px; border-radius: 8px; font-family: 'Fira Code', monospace;">${escapeHtml(code)}</div>`;
+                        }
+                    } catch (error) {
+                        console.error('Error running code:', error);
+                        codeOutput.innerHTML = `<div style="color: var(--error-color); font-weight: 500;">
+                            <i class="fas fa-exclamation-circle"></i> Error: ${error.message}
+                        </div>`;
+                    }
+                }, 500);
+            }
+
+            // Show toast notification
+            function showToast(message, type) {
+                toast.innerHTML = '';
+                
+                // Add icon based on type
+                const icon = document.createElement('i');
+                if (type === 'success') {
+                    icon.className = 'fas fa-check-circle';
+                } else if (type === 'error') {
+                    icon.className = 'fas fa-exclamation-circle';
+                } else if (type === 'warning') {
+                    icon.className = 'fas fa-exclamation-triangle';
+                }
+                
+                const text = document.createElement('span');
+                text.textContent = message;
+                
+                toast.appendChild(icon);
+                toast.appendChild(text);
+                toast.className = `toast ${type} show`;
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            // Process and display response from API
+            function processAndDisplayResponse(response) {
+                // If response contains code blocks
+                if (response.includes('```')) {
+                    addMessageToChat(response, 'bot');
+                } else {
+                    // Simple text response
+                    addMessageToChat(response, 'bot');
+                }
+            }
+
+            // Call the Gemini API
+            async function callGeminiAPI(prompt) {
+                try {
+                    // Adjust prompt based on language
+                    let adjustedPrompt = prompt;
+                    if (currentLanguage === 'sinhala') {
+                        // Add translation hint for the API
+                        adjustedPrompt = "The user is asking in Sinhala language. Please respond in Sinhala. Here's their request: " + prompt;
+                    }
+                    
+                    // Construct payload for the Gemini API
+                    const payload = {
+                        contents: [{
+                            parts: [{
+                                text: `You are CodeGenius AI Pro, an advanced AI coding assistant. Your task is to generate high-quality code based on user requests. Follow these guidelines:
+                                
+                                1. Always respond in the user's preferred language (${currentLanguage}).
+                                2. Format all code blocks with markdown triple backticks and specify the language.
+                                3. Include clear explanations when appropriate.
+                                4. Optimize code for performance and readability.
+                                5. Add comments to explain complex logic.
+                                
+                                The user's request is: ${adjustedPrompt}`
+                            }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            topK: 40,
+                            topP: 0.95,
+                            maxOutputTokens: 8192,
+                        }
+                    };
+                    
+                    // Call the Google Gemini API
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    // Check for errors
+                    if (data.error) {
+                        console.error('API Error:', data.error);
+                        return 'Sorry, I encountered an error with the API. Please try again.';
+                    }
+                    
+                    // Extract the response text
+                    if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
+                        return data.candidates[0].content.parts[0].text;
+                    } else {
+                        console.error('Unexpected API response structure:', data);
+                        return 'Sorry, I received an unexpected response format. Please try again.';
+                    }
+                } catch (error) {
+                    console.error('API Call Error:', error);
+                    return 'Sorry, there was an error connecting to the API. Please check your internet connection and try again.';
+                }
+            }
+
+            // Initialize everything
+            initUI();
+        });
+    </script>
+</body>
+</html>
